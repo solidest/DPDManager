@@ -5,8 +5,37 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DPDManager"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="500" Width="900"
+        WindowState="Maximized">
+    <Window.DataContext>
+        <local:DbViewModel/>
+    </Window.DataContext>
     <Grid>
-        
+        <TabControl>
+            <TabItem Header="代码生成">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="160px"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <ListBox Name ="lbTables" ItemsSource="{Binding TableList}"
+                             SelectionMode="Multiple"
+                             SelectionChanged="ListBox_SelectionChanged">
+
+                    </ListBox>
+                    <TextBox Name="tbCode"
+                        Grid.Column="1" TextWrapping="WrapWithOverflow">
+
+                    </TextBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="语义规则">
+
+            </TabItem>
+            <TabItem Header="数据浏览">
+
+            </TabItem>
+        </TabControl>
+
     </Grid>
 </Window>

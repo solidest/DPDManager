@@ -24,5 +24,12 @@ namespace DPDManager
         {
             InitializeComponent();
         }
+
+        private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var _dvm = (DbViewModel)this.DataContext;
+            tbCode.Text = "";
+            tbCode.AppendText(_dvm.GetTableCode(lbTables.SelectedItems));
+        }
     }
 }
