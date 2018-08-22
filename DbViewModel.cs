@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -91,20 +92,15 @@ namespace DPDManager
                     {
                         ret.Append("\tsqlite3_bind_text(m_" + tablename + "_stmt, " + colindex.ToString() + ", " + colname + "-1, SQLITE_STATIC);\n");
                     }
+                    else
+                    {
+                        Debug.Assert(false);
+                    }
                 }
                 ret.Append("\tint rc = sqlite3_step(m_" + tablename + "_stmt);\n\tif ((rc != SQLITE_DONE) && (rc != SQLITE_ROW))\n\t{\n\t\treturn -1;\n\t}\n");
                 ret.Append("\tsqlite3_reset(m_" + tablename + "_stmt);\n\n");
             }
             ret.Append("\n");
-
-            //sqlite3_bind_text(m_protocol_stmt, 1, proto->name, -1, SQLITE_STATIC);
-            //sqlite3_bind_int(m_protocol_stmt, 2, proto->lineno);
-            //int rc = sqlite3_step(m_protocol_stmt);
-            //if ((rc != SQLITE_DONE) && (rc != SQLITE_ROW))
-            //{
-            //    return -1;
-            //}
-            //sqlite3_reset(m_protocol_stmt);
 
             return ret.ToString();
             
