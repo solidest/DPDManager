@@ -70,13 +70,41 @@ namespace DPDManager
                 ret.Append("\tif (m_" + tablename + "_stmt)\n\t{\n\t\tsqlite3_finalize(m_" + tablename + "_stmt);\n");
                 ret.Append("\t\tm_" + tablename + "_stmt= NULL;\n\t}\n\n");
             }
+            ret.Append("\n");
 
             //Action
-            ret.Append("//Release--------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+            ret.Append("//Insert--------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
             foreach (string tablename in tlist)
             {
-
+                var cols = _hp.GetColumnStatus(tablename);
+                int colindex = 0;
+                foreach(DataRow r in cols.Rows)
+                {
+                    colindex += 1;
+                    string colname = r["name"].ToString();
+                    string coltype = r["type"].ToString();
+                    if(coltype=="INTEGER")
+                    {
+                        ret.Append("\tsqlite3_bind_int(m_" + tablename + "_stmt, " + colindex.ToString() + ", " + colname + ");\n");
+                    }
+                    else if(coltype == "TEXT")
+                    {
+                        ret.Append("\tsqlite3_bind_text(m_" + tablename + "_stmt, " + colindex.ToString() + ", " + colname + "-1, SQLITE_STATIC);\n");
+                    }
+                }
+                ret.Append("\tint rc = sqlite3_step(m_" + tablename + "_stmt);\n\tif ((rc != SQLITE_DONE) && (rc != SQLITE_ROW))\n\t{\n\t\treturn -1;\n\t}\n");
+                ret.Append("\tsqlite3_reset(m_" + tablename + "_stmt);\n\n");
             }
+            ret.Append("\n");
+
+            //sqlite3_bind_text(m_protocol_stmt, 1, proto->name, -1, SQLITE_STATIC);
+            //sqlite3_bind_int(m_protocol_stmt, 2, proto->lineno);
+            //int rc = sqlite3_step(m_protocol_stmt);
+            //if ((rc != SQLITE_DONE) && (rc != SQLITE_ROW))
+            //{
+            //    return -1;
+            //}
+            //sqlite3_reset(m_protocol_stmt);
 
             return ret.ToString();
             
