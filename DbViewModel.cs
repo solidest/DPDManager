@@ -18,11 +18,15 @@ namespace DPDManager
         {
             InitialDb();
             TableList = _hp.GetTableList().AsEnumerable().Select(t => t.Field<string>("Tables").ToString());
+            SegTypeList = _hp.Select("select * from dic_segtype;").AsEnumerable().Select(t => new ISItem() { StrValue = t.Field<string>("segtypetoken").ToString(), IntValue = (int)t.Field<Int64>("segtypecode") });
+            ValueTypeList = _hp.Select("select * from dic_propertyvaluetype;").AsEnumerable().Select(t => new ISItem() { StrValue = t.Field<string>("note").ToString(), IntValue = (int)t.Field<Int64>("pvaluetypecode") });
+            PropertyList = _hp.Select("select * from dic_propertytoken;").AsEnumerable().Select(t => t.Field<string>("propertytoken").ToString());
+            PValueList = _hp.Select("select * from dic_propertyvaluetoken;").AsEnumerable().Select(t => t.Field<string>("pvaluetoken").ToString());
         }
 
         private void InitialDb()
         {
-            _conn = new SQLiteConnection(@"data source=D:\DPDParser\DB\parser.db");
+            _conn = new SQLiteConnection(@"data source=C:\Kiyun\DPDParser\DB\dpd_parser.db");
             _cmd = new SQLiteCommand();
             _cmd.Connection = _conn;
             _conn.Open();
@@ -37,6 +41,11 @@ namespace DPDManager
         }
 
         public IEnumerable<String> TableList { get; private set; }
+        public IEnumerable<ISItem> SegTypeList { get; private set; }
+        public IEnumerable<String> PropertyList { get; private set; }
+        public IEnumerable<String> PValueList { get; private set; }
+        public IEnumerable<ISItem> ValueTypeList { get; private set; }
+        public IEnumerable<Rules> RulesList { get; private set; }
 
         #region --Code Generate--
 
@@ -123,6 +132,13 @@ namespace DPDManager
             ret.Append(");");
         }
 
-    #endregion
-}
+        #endregion
+
+        #region --Rule Manager--
+
+
+
+        #endregion
+    }
+
 }

@@ -30,7 +30,26 @@
                 </Grid>
             </TabItem>
             <TabItem Header="语义规则">
-
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="20px"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+                    <ListBox ItemsSource="{Binding SegTypeList}" Name ="lbSegtype" Margin="6" SelectionMode="Multiple"/>
+                    <ListBox ItemsSource="{Binding PropertyList}" Name ="lbPropertyName" Margin="6" Grid.Column="1" SelectionMode="Multiple"/>
+                    <ListBox ItemsSource="{Binding PValueList}" Name ="lbPropertyValue" Margin="6" Grid.Column="2" SelectionMode="Multiple"/>
+                    <ListBox ItemsSource="{Binding ValueTypeList}" Name ="lbValueType" Margin="6" Grid.Column="3" SelectionMode="Multiple"/>
+                    <ListBox ItemsSource="{Binding RulesList}" Name ="lbRules" Margin="6" Grid.Column="5" SelectionMode="Multiple"/>
+                    <StackPanel Grid.Column="4" VerticalAlignment="Center">
+                        <Button Height="30" Margin="0,6,0,6">-></Button>
+                        <Button Height="30" Margin="0,6,0,6">&lt;-</Button>
+                    </StackPanel>
+                </Grid>
+                
             </TabItem>
             <TabItem Header="数据浏览">
 
