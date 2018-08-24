@@ -6,14 +6,16 @@ using System.Threading.Tasks;
 
 namespace DPDManager
 {
-    public class Rules
+    public class Rule
     {
-        public string Rule { get; private set; }
-        public string SqlForDel { get; private set; }
+        public string RuleText { get; set; }
+        public List<Int32> RowList { get; set; }
+
+        public string TableName { get; set; }
+
         public override string ToString()
         {
-            return Rule;
+            return RuleText;
         }
-
     }
 }

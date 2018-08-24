@@ -26,7 +26,7 @@ namespace DPDManager
 
         private void InitialDb()
         {
-            _conn = new SQLiteConnection(@"data source=C:\Kiyun\DPDParser\DB\dpd_parser.db");
+            _conn = new SQLiteConnection(@"data source=C:\Kiyun\DPDManager\db\dpd_parser.db");
             _cmd = new SQLiteCommand();
             _cmd.Connection = _conn;
             _conn.Open();
@@ -40,12 +40,222 @@ namespace DPDManager
             _conn.Dispose();
         }
 
+        public void Execute(string sql)
+        {
+            _hp.Execute(sql);
+        }
+
+        public IEnumerable<Rule> GetRuleList()
+        {
+            var ret = new List<Rule>();
+            GetNessaryRule(ret);
+            GetCompatibleRule(ret);
+            GetForceRule(ret);
+            GetTypeEnum(ret);
+            GetTypeCompatible(ret);
+            return ret;
+        }
+
+        private void GetTypeCompatible(List<Rule> ret)
+        {
+            var tb = _hp.Select("SELECT rowid, propertytoken, valuetype FROM rule_property_vtype;");
+            var dic = new Dictionary<String, List<Int32>>();
+            var dic2 = new Dictionary<String, List<Int32>>();
+
+            foreach (DataRow r in tb.Rows)
+            {
+                List<Int32> plist = null;
+                List<Int32> plist2 = null;
+                Int32 vtype = Convert.ToInt32(r["valuetype"]);
+                string prop = r["propertytoken"].ToString();
+                if (dic.ContainsKey(prop))
+                {
+                    plist = dic[prop];
+                    plist2 = dic2[prop];
+                }
+                else
+                {
+                    plist = new List<Int32>();
+                    plist2 = new List<Int32>();
+                    dic.Add(prop, plist);
+                    dic2.Add(prop, plist2);
+                }
+                plist.Add(vtype);
+                plist2.Add(Convert.ToInt32(r["rowid"]));
+            }
+
+            foreach (string key in dic.Keys)
+            {
+                string ruletext = "TypeCompatible: " + key + " = " + "(" + GetStrList(dic[key].Select( p=> GetValueTypeName(p))) + ")";
+                ret.Add(new Rule() { TableName = "rule_property_vtype", RuleText = ruletext, RowList = dic2[key] });
+            }
+        }
+
+        private void GetTypeEnum(List<Rule> ret)
+        {
+            var tb = _hp.Select("SELECT rowid, propertytoken, valuetoken FROM rule_property_vtoken;");
+            var dic = new Dictionary<String, List<string>>();
+            var dic2 = new Dictionary<String, List<Int32>>();
+
+            foreach (DataRow r in tb.Rows)
+            {
+                List<String> plist = null;
+                List<Int32> plist2 = null;
+                string vtoken = r["valuetoken"].ToString();
+                string prop = r["propertytoken"].ToString();
+                if (dic.ContainsKey(prop))
+                {
+                    plist = dic[prop];
+                    plist2 = dic2[prop];
+                }
+                else
+                {
+                    plist = new List<string>();
+                    plist2 = new List<Int32>();
+                    dic.Add(prop, plist);
+                    dic2.Add(prop, plist2);
+                }
+                plist.Add(vtoken);
+                plist2.Add(Convert.ToInt32(r["rowid"]));
+            }
+
+            foreach (string key in dic.Keys)
+            {
+                string ruletext = "TypeEnum: " + key + " = " + "(" + GetStrList(dic[key]) + ")";
+                ret.Add(new Rule() { TableName = "rule_property_vtoken", RuleText = ruletext, RowList = dic2[key] });
+            }
+        }
+
+        private void GetForceRule(List<Rule> ret)
+        {
+            var tb = _hp.Select("SELECT rowid, segtype, propertytoken, valuetype FROM rule_segtype_property_vtype;");
+            foreach (DataRow r in tb.Rows)
+            {
+                var rl= new Rule();
+                rl.RuleText = "Force: " + GetSegTypeName(Convert.ToInt32(r["segtype"])) + "." + r["propertytoken"].ToString() + " = " + GetValueTypeName(Convert.ToInt32(r["valuetype"]));
+                rl.RowList = new List<int>();
+                rl.RowList.Add(Convert.ToInt32(r["rowid"]));
+                rl.TableName = "rule_segtype_property_vtype";
+                ret.Add(rl);
+            }
+        }
+
+        private void GetCompatibleRule(List<Rule> ret)
+        {
+            var tb = _hp.Select("SELECT rowid, segtype, propertytoken FROM rule_segtype_compatibleproperty; ");
+            var dic = new Dictionary<Int32, List<string>>();
+            var dic2 = new Dictionary<Int32, List<Int32>>();
+
+            foreach (DataRow r in tb.Rows)
+            {
+                List<String> plist = null;
+                List<Int32> plist2 = null;
+                Int32 segtype = Convert.ToInt32(r["segtype"]);
+                string prop = r["propertytoken"].ToString();
+                if (dic.ContainsKey(segtype))
+                {
+                    plist = dic[segtype];
+                    plist2 = dic2[segtype];
+                }
+                else
+                {
+                    plist = new List<string>();
+                    plist2 = new List<Int32>();
+                    dic.Add(segtype, plist);
+                    dic2.Add(segtype, plist2);
+                }
+                plist.Add(prop);
+                plist2.Add(Convert.ToInt32(r["rowid"]));
+            }
+
+
+            foreach (Int32 key in dic.Keys)
+            {
+                string ruletext = "Compatible: " + GetSegTypeName(key) + "." + "(" + GetStrList(dic[key]) + ")";
+                ret.Add(new Rule() { TableName = "rule_segtype_compatibleproperty", RuleText = ruletext, RowList = dic2[key] });
+            }
+
+        }
+
+        private void GetNessaryRule(List<Rule> ret)
+        {
+            var tb = _hp.Select("SELECT rowid, segtype, propertytoken FROM rule_segtype_necessaryproperty");
+            var dic = new Dictionary<Int32, List<string>>();
+            var dic2 = new Dictionary<Int32, List<Int32>>();
+
+            foreach (DataRow r in tb.Rows)
+            {
+                List<String> plist = null;
+                List<Int32> plist2 = null;
+                Int32 segtype = Convert.ToInt32(r["segtype"]);
+                string prop = r["propertytoken"].ToString();
+                if (dic.ContainsKey(segtype))
+                {
+                    plist = dic[segtype];
+                    plist2 = dic2[segtype];
+                }
+                else
+                {
+                    plist = new List<string>();
+                    plist2 = new List<Int32>();
+                    dic.Add(segtype, plist);
+                    dic2.Add(segtype, plist2);
+                }
+                plist.Add(prop);
+                plist2.Add(Convert.ToInt32(r["rowid"]));
+            }
+
+            
+            foreach (Int32 key in dic.Keys)
+            {
+                string ruletext = "Necessary: " + GetSegTypeName(key) + "." + "(" + GetStrList(dic[key]) + ")";
+                ret.Add(new Rule() { TableName = "rule_segtype_necessaryproperty", RuleText = ruletext, RowList = dic2[key] });
+            }
+
+        }
+
+        public void RemoveRule(Rule rl)
+        {
+            foreach(Int32 id in rl.RowList)
+            {
+                string sql = "DELETE FROM " + rl.TableName + " WHERE rowid = " + id.ToString();
+                _hp.Execute(sql);
+            }
+        }
+
+        private string GetStrList(IEnumerable<string> l)
+        {
+            string ss = "";
+            foreach(string s in l)
+            {
+                ss += s + ", ";
+            }
+            return ss.Substring(0, ss.Length - 2);
+        }
+
+        private string GetSegTypeName(Int32 id)
+        {
+            foreach(var it in SegTypeList)
+            {
+                if (it.IntValue == id) return it.StrValue;
+            }
+            return "";
+        }
+
+        private string GetValueTypeName(Int32 id)
+        {
+            foreach (var it in ValueTypeList)
+            {
+                if (it.IntValue == id) return it.StrValue;
+            }
+            return "";
+        }
+
         public IEnumerable<String> TableList { get; private set; }
         public IEnumerable<ISItem> SegTypeList { get; private set; }
         public IEnumerable<String> PropertyList { get; private set; }
         public IEnumerable<String> PValueList { get; private set; }
         public IEnumerable<ISItem> ValueTypeList { get; private set; }
-        public IEnumerable<Rules> RulesList { get; private set; }
 
         #region --Code Generate--
 

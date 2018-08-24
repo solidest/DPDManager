@@ -15,7 +15,7 @@
             <TabItem Header="代码生成">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="160px"/>
+                        <ColumnDefinition Width="220px"/>
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
                     <ListBox Name ="lbTables" ItemsSource="{Binding TableList}"
@@ -45,8 +45,9 @@
                     <ListBox ItemsSource="{Binding ValueTypeList}" Name ="lbValueType" Margin="6" Grid.Column="3" SelectionMode="Multiple"/>
                     <ListBox ItemsSource="{Binding RulesList}" Name ="lbRules" Margin="6" Grid.Column="5" SelectionMode="Multiple"/>
                     <StackPanel Grid.Column="4" VerticalAlignment="Center">
-                        <Button Height="30" Margin="0,6,0,6">-></Button>
-                        <Button Height="30" Margin="0,6,0,6">&lt;-</Button>
+                        <CheckBox Name="cbIsNeccessary" Height="30" Margin="0,6,0,6" HorizontalAlignment="Center"></CheckBox>
+                        <Button Height="30" Margin="0,6,0,6" Click="btAddRule">-></Button>
+                        <Button Height="30" Margin="0,6,0,6" Click="brRemoveRule">&lt;-</Button>
                     </StackPanel>
                 </Grid>
                 
